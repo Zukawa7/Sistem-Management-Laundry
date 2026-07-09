@@ -1,5 +1,6 @@
 	#include<iostream>
 	#include<fstream>
+	#include<string>
 	using namespace std;
 	
 	void cls(){ cout << "\033[2J\033[1;1H"; } //Untuk clear Screen
@@ -11,11 +12,9 @@
 	    public : 
 	    	bool getLoggedIn() {
             return LoggedIn; 
-        }
-        SystemLaundry(){
-        	userData[userCount].UserName = "ucok";
-        	userData[userCount].UserPw = "123";
-	}
+        }	
+        	SystemLaundry();
+        
         
 	    private :
 			int userCount = 0;
@@ -23,7 +22,7 @@
 				string UserName,UserPw;
 				bool typeAccount;
 			};
-			string PIN = "12345";
+			string PIN;
 			user userData[1000];
 	    	void ProcessLogin();
 	    	void AccLogin();
@@ -33,11 +32,13 @@
 	};
 
 	class Menu{
-		
+		friend class databaseSystem;
 		public :
 			void Process();
+			Menu();
 			
 		private :
+			int clientCount = 0;
 			void UnderConstruction();
 			void inputPelanggan();
 			void updateStatus();
@@ -52,8 +53,8 @@
 			struct harga{
 				int cuci_kering, setrika, ekspres, reguler; 
 			};
-			client clinetData[1000];
-			harga fees[1000];
+			client clientData[1000];
+			harga fees;
 	};
 			
 		
@@ -66,20 +67,32 @@
 	    return output;
 	}
 	
-	class fileManagement{
+	class databaseSystem{
 		friend class Menu;
 		friend class SystemLaundry;
 		public : 
-		
+		void struk(Menu& m);
 		
 		
 		private :
-
+		
 				
 			
 	};
+	//Constructor for default system parameter
+	SystemLaundry::SystemLaundry(){
+			PIN = "12345";
+        	userData[userCount].UserName = "ucok";
+        	userData[userCount].UserPw = "123";
+        	userData[userCount].typeAccount = true;
+	}
+	
+	Menu::Menu(){
+		int cuci_kering = 5000, setrika = 4000, ekspres = 10000, reguler = 6000;
+	}
 	
 	
+	//Function
 	void Menu::Process(){
 		do{
 		cls();
@@ -118,14 +131,59 @@
 			}
 		}while(Input != 4);
 	} 
+
+	void Menu::inputPelanggan(){
+    	if (clientCount >= 1000) {
+       		cout << "Database Penuh....!" << endl;
+    		key();
+    		cls();
+    		return;
+    	}
+    	
+    	clientData[clientCount].status = "Proses";
+
+    	cout << "IDENTITAS PELANGGAN" << endl;
+    	cout << "NAMA : "; cin >> clientData[clientCount].nama;
+    	cout << "NO HP : "; cin >> clientData[clientCount].hp;
+    	cout << "Berat : "; cin >> clientData[clientCount].berat;
+    	//clientData[clientCount].id = getRandomId();
+		//clientData[clientCount].tgl = getTanggal();
+    	int i;
+    	cout << "+===== PAKET =====+" << endl;
+    	cout << "1. Reguler " << endl;
+    	cout << "2. Ekspres " << endl;
+    	cout << "3. Cuci Kering " << endl;
+    	cout << "4. Setrika " << endl;
+    	cout << "Masukkan Pilihan (1-4) : ";
+    	cin >> i;
+    	cls();
+
+    	if (i == 1) {
+    		clientData[clientCount].harga = fees.reguler;
+        	clientData[clientCount].total = clientData[clientCount].berat * fees.reguler;
+        	clientData[clientCount].paket = "Reguler(3Days)";
+    	} else if (i == 2) {
+    		clientData[clientCount].harga = fees.ekspres;
+        	clientData[clientCount].total = clientData[clientCount].berat * fees.ekspres;
+        	clientData[clientCount].paket = "Ekspres(1Day)";
+    	} else if (i == 3) {
+    		clientData[clientCount].harga = fees.cuci_kering;
+        	clientData[clientCount].total = clientData[clientCount].berat * fees.cuci_kering;
+        	clientData[clientCount].paket = "CuciKering(2Days)";
+    	} else if (i == 4) {
+    		clientData[clientCount].harga = fees.setrika;
+        	clientData[clientCount].total = clientData[clientCount].berat * fees.setrika;
+        	clientData[clientCount].paket = "Setrika(2Days)";
+    	}
+		databaseSystem db;
+    	db.struk(*this);
+    	clientCount++; 
+	}	
 	
 	void Menu::updateStatus(){
 	
 	}
 
-	void Menu::inputPelanggan(){
-	
-	}
 
 	void Menu::dataTransaksi(){
 	
@@ -134,7 +192,23 @@
 	void Menu::logout(){
 	
 	}
-
+	
+	void databaseSystem::struk(Menu& m) {
+    	string dir = "struk/" + m.clientData[m.clientCount].nama + ".txt";
+    	ofstream filestruk(dir.c_str());
+    	filestruk << "========================================" << endl;
+    	filestruk << "          Sumber Makmur Bantul" << endl;
+    	filestruk << "========================================" << endl;
+    	filestruk << "No Nota : " << m.clientData[m.clientCount].id << endl;
+    	filestruk << "Nama : " << m.clientData[m.clientCount].nama << endl;
+    	filestruk << "Berat : " << m.clientData[m.clientCount].berat << endl;
+    	filestruk << "Paket : " << m.clientData[m.clientCount].paket << endl;
+    	filestruk << "Total : " << m.clientData[m.clientCount].total << endl;
+    	filestruk << "Status : " << m.clientData[m.clientCount].status << endl;
+    	filestruk << "Tanggal : " << m.clientData[m.clientCount].tgl << endl;
+    	filestruk << "========================================" << endl;
+    	filestruk.close();
+	}
 
 	
 	void SystemLaundry::ProcessLogin(){
@@ -144,16 +218,14 @@
 		cls();
 		if(i == 'y' || i == 'Y'){
 			AccLogin();
-			LoggedIn = true;
 		} else if (i == 'n' || i == 'N'){
 			AccReg();
 			AccLogin();
-			LoggedIn = true;
 		} else if (!i){
 			cout << "Hanya Masukkan Input Y/N!\n";
-			ProcessLogin();
-		} else {
 			key();
+			cls();
+			ProcessLogin();
 		}
 	}
 	
@@ -168,24 +240,23 @@
 			cout << "Masukkan Password : ";
 			cin >> InPw;
 			if(userCount >= 0){
-			for(int i = 0; i < userCount + 1;i++){
-			if(InName == userData[i].UserName && InPw == userData[i].UserPw){
+			for(int i = 0; i <= userCount ;i++){
+				if(InName == userData[i].UserName && InPw == userData[i].UserPw){
+					cls();
+					cout << "Login Berhasil! " << endl;
+					LoggedIn = true;
+					break;
+					} 		
+				} 
+			} else {
 				cls();
-				cout << "Login Berhasil! " << endl;
-				LoggedIn = true;
-			} 		
-		}
-			}else {
-			cls();
-			cout << "Username/Password salah!!\nCoba lagi!!!\n";
-			AccLogin();
+				cout << "Username/Password salah!!\nCoba lagi!!!\n";
+				key();
+				cls();
+				AccLogin();
 			}
-		cout << "Tidak akun yang terdaftar di database!!\n";
-		cout << "Silahkan Registrasi Akun terlebih dahulu!!!";
-		key();
-		cls();
-		LoggedIn = true;
-		AccReg();
+			cls();
+			
 	}while(!LoggedIn);
 }
 	
