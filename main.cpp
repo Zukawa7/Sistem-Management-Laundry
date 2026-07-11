@@ -106,8 +106,6 @@
 		cls();
 			switch (Input) {
 				case 1 :
-					cls();
-					UnderConstruction();
 					inputPelanggan();
 					break;
 				case 2 :
@@ -116,17 +114,13 @@
 					updateStatus();
 					break;
 				case 3 :
-					cls();
-					UnderConstruction();
 					dataTransaksi();
 					break;
 				case 4 :
-					cls();
 					UnderConstruction();
 					logout();
 					break;
 				default :
-					cls();
 					cout << "Hanya Masukkan Pilihan 1-4 !!!" << endl;
 			}
 		}while(Input != 4);
@@ -186,7 +180,23 @@
 
 
 	void Menu::dataTransaksi(){
-	
+         if (clientCount > 0) {
+            for (int i = 0; i <= clientCount - 1; i++) {
+                cout << "-------------------------" << endl;
+                cout << "Pelanggan Ke-" << i + 1 << endl;
+                cout << "Nama    : " << clientData[i].nama << endl;
+                cout << "ID      : " << clientData[i].id << endl;
+                cout << "Paket   : " << clientData[i].paket << endl;
+                cout << "Status  : " << clientData[i].status << endl;
+                cout << "Berat	: " << clientData[i].berat << endl;
+                cout << "Harga   : " << clientData[i].harga << endl;
+                cout << "Total	: " << clientData[i].total << endl;
+                }
+            } else {
+            cout << "Tidak Ada Data Transaksi Yang Bisa di Tampilkan !!!" << endl;
+         }
+         cout << "Tekan apapun unutuk melanjutkan....";
+         key();
 	}
 
 	void Menu::logout(){
